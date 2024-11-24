@@ -28,7 +28,7 @@ Mr._Clean is a comprehensive system cleanup and maintenance script designed for 
 
 1. Clone the repository:
 
-git clone https://github.com/Made2Flex/Mr._Clean/.git
+git clone https://github.com/Made2Flex/Mr._Clean.git
 
 2. Make the script executable:
 
@@ -73,4 +73,4 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 Made2Flex - [your-email@example.com](mailto:your-email@example.com)
 
-Project Link: [https://github.com/Made2Flex/Mr._Clean](https://github.com/Made2Flex/Mr._Clean/.git)
+Project Link: [https://github.com/Made2Flex/Mr._Clean.git](https://github.com/Made2Flex/Mr._Clean)
