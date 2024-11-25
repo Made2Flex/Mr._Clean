@@ -136,7 +136,7 @@ perform_housekeeping() {
 
     echo -e "${ORANGE}==>> Cleaning Temporary Files...${NC}"
     # Remove all files except mr_clean.log
-    find /tmp -type f ! -name "mr_clean.log" -delete
+    find /tmp -type f -not -name "mr_clean.log" -delete 2>/dev/null
     sudo rm -rf /var/tmp/*
     sudo rm -rf ~/.old
 
@@ -192,7 +192,7 @@ main() {
         echo "-------------------------------------------"
 
         notify-send "Mr. Clean" "System Cleanup Completed" --icon=system-cleanup
-    } 2>&1 | tee "/tmp/mr_clean.log"
+    } 2>&1 | tee >(sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" >> /tmp/mr_clean.log)
 }
 
 # Clean Me!
