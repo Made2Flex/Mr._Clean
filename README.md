@@ -22,6 +22,7 @@ Mr._Clean is a comprehensive system cleanup and maintenance script designed for 
   - `pacman`
   - `yay` (optional, for AUR cleanup)
   - `pamac` (optional, for Manjaro-specific cleanup)
+  - `apt` (optional, for Debian-specific cleanup)
   - `notify-send` (for desktop notifications)
 
 ## 🚀 Installation
