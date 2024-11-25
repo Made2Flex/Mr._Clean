@@ -26,7 +26,7 @@ NC='\033[0m' # No color
 # Function to greet the user
 greet_user() {
     local username=$(whoami)
-    echo -e "${GREEN}Hello, $username-sama!${NC}"
+    echo -e "${BRIGHT_YELLOW}Hello, $username-sama!${NC}"
 }
 
 # Function to ask y/n and kill orphans
@@ -50,6 +50,25 @@ askuser() {
     esac
 }
 
+# Function to detect and run arch specific cleanup
+arch_cleanup() {
+    if command -v pacman &> /dev/null 2>&1; then
+        echo -e "${LIGHT_BLUE}==>> Arch Specific Cleanup in progress!!${NC}"
+        echo -e "${ORANGE}==>> Cleaning Pacman Cache...${NC}"
+        sudo pacman -Scc --noconfirm
+        if command -v yay &> /dev/null 2>&1; then
+            echo -e "${ORANGE}==>> Cleaning yay build files...${NC}"
+            yay -Sc --noconfirm
+        else
+            echo -e "${RED}!!! yay not found!${NC}"
+            echo -e "${ORANGE}==>> Skipping yay build files cleanup.${NC}"
+        fi
+    else
+        echo -e "${RED}!!! pacman not found!${NC}"
+        echo -e "${ORANGE}==>> Skipping arch specific cleanup.${NC}"
+    fi
+}
+
 # Function to detect and run manjaro specific cleanup
 manjaro_cleanup() {
     if command -v pamac &> /dev/null 2>&1; then
@@ -57,21 +76,48 @@ manjaro_cleanup() {
         sudo pamac clean --keep 0 --no-confirm
         sudo pamac clean -v --build-files --keep 0 --no-confirm
     else
-        echo -e "${RED}!!! ==>> pamac not found!${NC}"
-        echo -e "${ORANGE}!!! ==>> Skipping manjaro specific cleanup.${NC}"
+        echo -e "${RED}!!! pamac not found!${NC}"
+        echo -e "${ORANGE}==>> Skipping Manjaro specific cleanup.${NC}"
+    fi
+}
+
+# Function to detect and run debian specific cleanup
+debian_cleanup() {
+    if command -v apt &> /dev/null 2>&1; then
+        echo -e "${LIGHT_BLUE}==>> Debian Specific Cleanup in progress!!${NC}"
+        echo -e "${ORANGE}==>> Removing Unused Packages...${NC}"
+        sudo apt-get autoremove -y
+
+        echo -e "${ORANGE}==>> Clearing APT Cache...${NC}"
+        sudo apt-get clean
+
+        echo -e "${ORANGE}==>> Removing Orphan Configurations...${NC}"
+        sudo apt-get purge -y $(dpkg -l | awk '/^rc/ { print $2 }')
+
+        echo -e "${ORANGE}==>> Removing Old Kernels...${NC} "
+        sudo apt-get autoremove --purge -y
+        echo -e "${GREEN}==>> Debian Specific Cleanup Completed!${NC}"
+    else
+        echo -e "${RED}!!! apt not found!${NC}"
+        echo -e "${ORANGE}==>> Skipping Debian specific cleanup.${NC}"
     fi
 }
 
 # Function to list orphans if any
 list_orphans() {
-    # Suppress output and only show orphans if they exist
-    local orphans=$(pacman -Qdtq 2>/dev/null)
-    if [ -n "$orphans" ]; then
-    echo -e "${ORANGE}Orphaned packages detected:${NC}"
-        echo "$orphans"
-        askuser
+    if command -v pacman &> /dev/null 2>&1; then
+        # Suppress output and only show orphans if they exist
+        local orphans=$(pacman -Qdtq 2>/dev/null)
+        if [ -n "$orphans" ]; then
+            echo -e "${ORANGE}==>> Orphaned packages detected:${NC}"
+            echo "$orphans"
+            askuser
+        else
+            echo -e "${GREEN}==>> No Pacman orphaned packages found.${NC}"
+        fi
     else
-        echo "No Pacman orphaned packages found."
+        echo -e "${RED}!!! pacman not found!${NC}"
+        echo -e "${ORANGE}==>> Skipping orphaned packages check.${NC}"
     fi
 }
 
@@ -89,14 +135,14 @@ perform_housekeeping() {
     sudo -v
 
     echo -e "${ORANGE}==>> Cleaning Temporary Files...${NC}"
-    sudo rm -rf /tmp/*
+    # Remove all files except mr_clean.log
+    find /tmp -type f ! -name "mr_clean.log" -delete
     sudo rm -rf /var/tmp/*
     sudo rm -rf ~/.old
 
     echo -e "${ORANGE}==>> Clearing Cache...${NC}"
     rm -rf ~/.cache/*
-    du -sh ~/.cache/*
-    sudo pacman -Scc --noconfirm
+    #du -sh ~/.cache/*
 
     echo -e "${ORANGE}==>> Clearing Thumbnail Cache...${NC}"
     rm -rf ~/.cache/thumbnails/*
@@ -111,13 +157,12 @@ perform_housekeeping() {
     echo -e "${ORANGE}==>> Vaccumming Journal To ~10MBs...${NC}"
     journalctl --vacuum-size=10M
 
-    echo -e "${ORANGE}==>> Cleaning yay build files...${NC}"
-    yay -Sc --noconfirm
-
     echo -e "${ORANGE}==>> Rotating Logs...${NC}"
     sudo logrotate -f /etc/logrotate.conf
 
+    arch_cleanup
     manjaro_cleanup
+    debian_cleanup
 
     echo -e "${ORANGE}==>> Listing orphans, if any...${NC}"
     list_orphans
