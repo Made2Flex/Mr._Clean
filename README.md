@@ -44,6 +44,7 @@ chmod +x -v mr_clean.sh
 1. run the script:
 
 ./mr_Clean_timer.sh
+
 It will clone mr_clean.sh and set-up a systemd timer.
 
 
