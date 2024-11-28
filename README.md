@@ -1,4 +1,4 @@
-# Mr._Clean: Arch Linux System Cleanup Utility
+# Mr._Clean: Linux System Cleanup Utility
 
 ## 🧹 Overview
 
