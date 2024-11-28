@@ -49,7 +49,7 @@ set -e
 MAINTENANCE_SCRIPT="${HOME}/scripts/mr_clean.sh"
 
 # Github clone function
-github_clone_authenticated() {
+clone_github() {
     local repo_url="$1"
     local target_dir="$2"
 
@@ -100,7 +100,7 @@ check_files() {
                 fi
 
                 # Clone the repository (public URL)
-                if github_clone_authenticated "https://github.com/Made2Flex/Mr._Clean.git" "$(dirname "${MAINTENANCE_SCRIPT}")"/Mr._Clean; then
+                if clone_github "https://github.com/Made2Flex/Mr._Clean.git" "$(dirname "${MAINTENANCE_SCRIPT}")"/Mr._Clean; then
                     cd "$(dirname "${MAINTENANCE_SCRIPT}")/Mr._Clean"
                     cp mr_clean.sh "${MAINTENANCE_SCRIPT}"
 
