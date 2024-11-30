@@ -2,7 +2,7 @@
 
 ## 🧹 Overview
 
-Mr._Clean is a comprehensive system cleanup and maintenance script designed for Arch Linux and Manjaro-based systems. It provides an interactive and colorful way to perform system housekeeping tasks, helping you maintain a clean and optimized system.
+Mr._Clean is a comprehensive system cleanup and maintenance script designed for modern Linux systems. It provides an interactive and colorful way to perform system housekeeping tasks, helping you maintain a clean and optimized system.
 
 ## ✨ Features
 
