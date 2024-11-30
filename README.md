@@ -11,15 +11,14 @@ Mr._Clean is a comprehensive system cleanup and maintenance script designed for 
 - 📋 Log management
 - 🗂️ Orphaned package detection and removal
 - 🔍 Disk usage reporting
-- 🚀 Manjaro-specific cleanup support
 - 📣 Desktop notifications
 
 ## 🛠️ Prerequisites
 
-- Arch Linux or Manjaro-based system
+- Linux system
 - `sudo` access
 - Packages: 
-  - `pacman`
+  - `pacman` (for Arch based systems)
   - `yay` (optional, for AUR cleanup)
   - `pamac` (optional, for Manjaro-specific cleanup)
   - `apt` (optional, for Debian-specific cleanup)
