@@ -77,9 +77,3 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 - Inspired by the need for simple, effective system maintenance
 - ASCII art header for that extra flex!
-
-## 📞 Contact
-
-Made2Flex - [your-email@example.com](mailto:your-email@example.com)
-
-Project Link: [https://github.com/Made2Flex/Mr._Clean.git](https://github.com/Made2Flex/Mr._Clean)
