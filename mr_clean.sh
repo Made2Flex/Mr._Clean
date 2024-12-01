@@ -53,7 +53,7 @@ askuser() {
 # Function to detect and run arch specific cleanup
 arch_cleanup() {
     if command -v pacman &> /dev/null 2>&1; then
-        echo -e "${LIGHT_BLUE}==>> Arch Specific Cleanup in progress!!${NC}"
+        echo -e "${LIGHT_BLUE}==>> Arch Cleanup in progress!!${NC}"
         echo -e "${ORANGE}==>> Cleaning Pacman Cache...${NC}"
         sudo pacman -Scc --noconfirm
         if command -v yay &> /dev/null 2>&1; then
@@ -65,7 +65,7 @@ arch_cleanup() {
         fi
     else
         echo -e "${RED}!!! pacman not found!${NC}"
-        echo -e "${ORANGE}==>> Skipping arch specific cleanup.${NC}"
+        echo -e "${ORANGE}==>> Skipping arch cleanup.${NC}"
     fi
 }
 
@@ -77,16 +77,14 @@ manjaro_cleanup() {
         sudo pamac clean -v --build-files --keep 0 --no-confirm
     else
         echo -e "${RED}!!! pamac not found!${NC}"
-        echo -e "${ORANGE}==>> Skipping Manjaro specific cleanup.${NC}"
+        echo -e "${ORANGE}==>> Skipping Manjaro cleanup.${NC}"
     fi
 }
 
 # Function to detect and run debian specific cleanup
 debian_cleanup() {
     if command -v apt &> /dev/null 2>&1; then
-        echo -e "${LIGHT_BLUE}==>> Debian Specific Cleanup in progress!!${NC}"
-        echo -e "${ORANGE}==>> Removing Unused Packages...${NC}"
-        sudo apt-get autoremove -y
+        echo -e "${LIGHT_BLUE}==>> Debian Cleanup in progress!!${NC}"
 
         echo -e "${ORANGE}==>> Clearing APT Cache...${NC}"
         sudo apt-get clean
@@ -94,9 +92,9 @@ debian_cleanup() {
         echo -e "${ORANGE}==>> Removing Orphan Configurations...${NC}"
         sudo apt-get purge -y $(dpkg -l | awk '/^rc/ { print $2 }')
 
-        echo -e "${ORANGE}==>> Removing Old Kernels...${NC} "
+        echo -e "${ORANGE}==>> Removing Old Kernels and Unneeded packages...${NC} "
         sudo apt-get autoremove --purge -y
-        echo -e "${GREEN}==>> Debian Specific Cleanup Completed!${NC}"
+        echo -e "${GREEN}==>> Debian Cleanup Completed!${NC}"
     else
         echo -e "${RED}!!! apt not found!${NC}"
         echo -e "${ORANGE}==>> Skipping Debian specific cleanup.${NC}"
@@ -139,6 +137,7 @@ perform_housekeeping() {
     find /tmp -type f -not -name "mr_clean.log" -delete 2>/dev/null
     sudo rm -rf /var/tmp/*
     sudo rm -rf ~/.old
+	sudo rm -rf /var/log/apt/*
 
     echo -e "${ORANGE}==>> Clearing Cache...${NC}"
     rm -rf ~/.cache/*
@@ -192,7 +191,7 @@ main() {
         echo "-------------------------------------------"
 
         notify-send "Mr. Clean" "System Cleanup Completed" --icon=system-cleanup
-    } 2>&1 | tee >(sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" >> /tmp/mr_clean.log)
+    } 2>&1 | tee >(sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" >> $HOME/scripts/mr_clean.log)
 }
 
 # Clean Me!
