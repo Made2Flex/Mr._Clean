@@ -109,7 +109,8 @@ check_files() {
                         print_color "green" "✓ Successfully copied script to: $(dirname "${MAINTENANCE_SCRIPT}")"
                         cd ..
                         rm -rf Mr._Clean
-                        dynamic_color_line "Please make the script executable."
+                        dynamic_color_line "Making the script executable..."
+                        chmod +x -v "${MAINTENANCE_SCRIPT}"
                     else
                         print_color "red" "!! Failed to copy the script."
                         exit 1
