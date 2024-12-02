@@ -203,7 +203,7 @@ User=ktrl
 [Install]
 WantedBy=multi-user.target
 EOL"
-    print_color "green" "==>> Service file created at: $(print_color "blue" "/etc/systemd/system/mr-clean.service")"
+    print_color "green" "  >> Service file created at: $(print_color "blue" "/etc/systemd/system/mr-clean.service")"
 
     # Function to create the timer file
     print_color "yellow" "==>> Creating timer..."
@@ -218,7 +218,7 @@ Persistent=true
 [Install]
 WantedBy=timers.target
 EOL'
-    print_color "green" "==>> Timer created at: $(print_color "blue" "/etc/systemd/system/mr-clean.timer")"
+    print_color "green" "  >> Timer created at: $(print_color "blue" "/etc/systemd/system/mr-clean.timer")"
 
 }
 
@@ -226,7 +226,7 @@ EOL'
 check_timer() {
     print_color "yellow" "==>> Checking if the timer sevice is active..."
     if sudo systemctl is-active mr-clean.timer | grep -q "active" ; then
-        print_color "white" "==>> mr.clean timer is $(print_color "green" "Enabled") and $(print_color "green" "Active")."
+        print_color "white" "  >> mr.clean timer is $(print_color "green" "Enabled") and $(print_color "green" "Active")."
     else
         print_color "red" "!! mr.clean timer is $(print_color "white" "Inactive")."
         sleep 1
