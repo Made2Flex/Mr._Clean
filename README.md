@@ -70,7 +70,7 @@ It will clone mr_clean.sh and set-up a systemd timer.
 
 ## 📄 License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+Distributed under the MIT License. see the [LICENSE](LICENSE) file for details.
 
 ## 🙌 Acknowledgments
 
