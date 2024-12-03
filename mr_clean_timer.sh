@@ -79,7 +79,14 @@ check_files() {
                 # Check if git is installed, if not install it
                 if ! command -v git &> /dev/null; then
                     print_color "yellow" "==>> Git is not installed. Installing git..."
-                    sudo pacman -S --noconfirm git
+                    if command -v apt &> /dev/null; then
+                        sudo apt update && sudo apt install -y git
+                    elif command -v pacman &> /dev/null; then
+                        sudo pacman -S --noconfirm git
+                    else
+                        print_color "red" "!! Package manager not supported. Please install git manually."
+                        exit 1
+                    fi
                 fi
 
                 print_color "yellow" "==>> Downloading Mr. Clean script from GitHub..."

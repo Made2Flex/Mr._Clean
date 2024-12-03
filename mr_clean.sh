@@ -132,13 +132,6 @@ perform_housekeeping() {
     echo -e "${BLUE}==>> Please enter your password to continue...${NC}"
     sudo -v
 
-    echo -e "${ORANGE}==>> Cleaning Temporary Files...${NC}"
-    # Remove all files except mr_clean.log
-    find /tmp -type f -not -name "mr_clean.log" -delete 2>/dev/null
-    sudo rm -rf /var/tmp/*
-    sudo rm -rf ~/.old
-	sudo rm -rf /var/log/apt/*
-
     echo -e "${ORANGE}==>> Clearing Cache...${NC}"
     rm -rf ~/.cache/*
     #du -sh ~/.cache/*
@@ -154,10 +147,17 @@ perform_housekeeping() {
     echo -e "${ORANGE}==>> Journal Current Size...${NC}"
     journalctl --disk-usage
     echo -e "${ORANGE}==>> Vaccumming Journal To ~10MBs...${NC}"
-    journalctl --vacuum-size=10M
+    sudo journalctl --vacuum-size=10M
 
     echo -e "${ORANGE}==>> Rotating Logs...${NC}"
     sudo logrotate -f /etc/logrotate.conf
+
+    echo -e "${ORANGE}==>> Cleaning Temporary Files...${NC}"
+    # Remove all files except mr_clean.log
+    find /tmp -type f -not -name "mr_clean.log" -delete 2>/dev/null
+    sudo rm -rf /var/tmp/*
+    sudo rm -rf ~/.old
+	sudo rm -rf /var/log/apt/*
 
     arch_cleanup
     manjaro_cleanup
