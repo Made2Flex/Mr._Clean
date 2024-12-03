@@ -1,5 +1,8 @@
 #!/usr/bin/bash
 
+# Get the directory where the script is located
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+
 # ASCII Art Header
 ascii_art_header() {
     cat << 'EOF'
@@ -76,7 +79,7 @@ manjaro_cleanup() {
         sudo pamac clean --keep 0 --no-confirm
         sudo pamac clean -v --build-files --keep 0 --no-confirm
     else
-        echo -e "${RED}!!! pamac not found!${NC}"
+        echo -e "${RED}!! pamac not found!${NC}"
         echo -e "${ORANGE}==>> Skipping Manjaro cleanup.${NC}"
     fi
 }
@@ -92,11 +95,11 @@ debian_cleanup() {
         echo -e "${ORANGE}==>> Removing Orphan Configurations...${NC}"
         sudo apt-get purge -y $(dpkg -l | awk '/^rc/ { print $2 }')
 
-        echo -e "${ORANGE}==>> Removing Old Kernels and Unneeded packages...${NC} "
+        echo -e "${ORANGE}==>> Removing Unneeded packages...${NC} "
         sudo apt-get autoremove --purge -y
         echo -e "${GREEN}==>> Debian Cleanup Completed!${NC}"
     else
-        echo -e "${RED}!!! apt not found!${NC}"
+        echo -e "${RED}!! apt not found!${NC}"
         echo -e "${ORANGE}==>> Skipping Debian specific cleanup.${NC}"
     fi
 }
@@ -121,8 +124,7 @@ list_orphans() {
 
 # Function to perform housekeeping tasks
 perform_housekeeping() {
-    # Ensure log directory exists and is writable
-    LOG_FILE="/tmp/mr_clean.log"
+    LOG_FILE="$SCRIPT_DIR/mr_clean.log"
 
     echo -e "${ORANGE}==>> Current disk usage...${NC}"
     df / ~
@@ -140,7 +142,7 @@ perform_housekeeping() {
     rm -rf ~/.cache/thumbnails/*
 
     echo -e "${ORANGE}==>> Deleting Logs older than 5 days...${NC}"
-    #sudo rm -rf /var/log/*
+    
     # Romove logs older than 5 days
     sudo find /var/log -type f -name "*.log" -mtime +5 -delete 2>/dev/null
 
@@ -191,7 +193,7 @@ main() {
         echo "-------------------------------------------"
 
         notify-send "Mr. Clean" "System Cleanup Completed" --icon=system-cleanup
-    } 2>&1 | tee >(sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" >> $HOME/scripts/mr_clean.log)
+    } 2>&1 | tee >(sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" >> $SCRIPT_DIR/mr_clean.log)
 }
 
 # Clean Me!
