@@ -60,6 +60,7 @@ arch_cleanup() {
         echo -e "${ORANGE}==>> Cleaning Pacman Cache...${NC}"
         # is there a more elegant solution?
         echo "y" | sudo pacman -Scc
+        echo -e "\n"  # needed for better formatting since the line above
         if command -v yay &> /dev/null 2>&1; then
             echo -e "${ORANGE}==>> Cleaning yay build files...${NC}"
             yay -Sc --noconfirm
