@@ -58,7 +58,8 @@ arch_cleanup() {
     if command -v pacman &> /dev/null 2>&1; then
         echo -e "${LIGHT_BLUE}==>> Arch Cleanup in progress!!${NC}"
         echo -e "${ORANGE}==>> Cleaning Pacman Cache...${NC}"
-        sudo pacman -Scc --noconfirm
+        # is there a more elegant solution?
+        echo "y" | sudo pacman -Scc
         if command -v yay &> /dev/null 2>&1; then
             echo -e "${ORANGE}==>> Cleaning yay build files...${NC}"
             yay -Sc --noconfirm
