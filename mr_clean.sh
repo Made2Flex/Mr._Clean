@@ -13,7 +13,7 @@ ascii_art_header() {
 | $$  $$$| $$| $$  \__/    | $$      | $$| $$$$$$$$  /$$$$$$$| $$  \ $$|__/
 | $$\  $ | $$| $$          | $$    $$| $$| $$_____/ /$$__  $$| $$  | $$
 | $$ \/  | $$| $$       /$$|  $$$$$$/| $$|  $$$$$$$|  $$$$$$$| $$  | $$ /$$
-|__/     |__/|__/      |__/ \______/ |__/ \_______/ \_______/|__/  |__/|__/'
+|__/     |__/|__/      |__/ \______/ |__/ \_______/ \_______/|__/  |__/|__/
 EOF
 }
 
@@ -78,8 +78,8 @@ arch_cleanup() {
 manjaro_cleanup() {
     if command -v pamac &> /dev/null 2>&1; then
         echo -e "${LIGHT_BLUE}==>> Manjaro Specific Cleanup in progress!!${NC}"
-        sudo pamac clean --keep 0 --no-confirm
-        sudo pamac clean -v --build-files --keep 0 --no-confirm
+        sudo pamac clean --keep 0 --no-confirm > /dev/null 2>&1
+        sudo pamac clean -v --build-files --keep 0 --no-confirm > /dev/null 2>&1
     else
         echo -e "${RED}!! pamac not found!${NC}"
         echo -e "${ORANGE}==>> Skipping Manjaro cleanup.${NC}"
