@@ -222,6 +222,8 @@ Description=Run Mr. Clean Weekly
 [Timer]
 OnCalendar=weekly
 Persistent=true
+RandomizedDelaySec=15 seconds
+AccuracySec=1us
 
 [Install]
 WantedBy=timers.target
