@@ -58,7 +58,6 @@ arch_cleanup() {
     if command -v pacman &> /dev/null 2>&1; then
         echo -e "${LIGHT_BLUE}==>> Arch Cleanup in progress!!${NC}"
         echo -e "${ORANGE}==>> Cleaning Pacman Cache...${NC}"
-        # is there a more elegant solution?
         echo "y" | sudo pacman -Scc
         echo -e "\n"  # needed for better formatting since the line above
         if command -v yay &> /dev/null 2>&1; then
