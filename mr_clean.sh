@@ -13,7 +13,7 @@ ascii_art_header() {
 | $$  $$$| $$| $$  \__/    | $$      | $$| $$$$$$$$  /$$$$$$$| $$  \ $$|__/
 | $$\  $ | $$| $$          | $$    $$| $$| $$_____/ /$$__  $$| $$  | $$
 | $$ \/  | $$| $$       /$$|  $$$$$$/| $$|  $$$$$$$|  $$$$$$$| $$  | $$ /$$
-|__/     |__/|__/      |__/ \______/ |__/ \_______/ \_______/|__/  |__/|__/'
+|__/     |__/|__/      |__/ \______/ |__/ \_______/ \_______/|__/  |__/|__/
 EOF
 }
 
@@ -58,7 +58,8 @@ arch_cleanup() {
     if command -v pacman &> /dev/null 2>&1; then
         echo -e "${LIGHT_BLUE}==>> Arch Cleanup in progress!!${NC}"
         echo -e "${ORANGE}==>> Cleaning Pacman Cache...${NC}"
-        sudo pacman -Scc --noconfirm
+        echo "y" | sudo pacman -Scc
+        echo -e "\n"  # needed for better formatting since the line above
         if command -v yay &> /dev/null 2>&1; then
             echo -e "${ORANGE}==>> Cleaning yay build files...${NC}"
             yay -Sc --noconfirm
@@ -76,8 +77,8 @@ arch_cleanup() {
 manjaro_cleanup() {
     if command -v pamac &> /dev/null 2>&1; then
         echo -e "${LIGHT_BLUE}==>> Manjaro Specific Cleanup in progress!!${NC}"
-        sudo pamac clean --keep 0 --no-confirm
-        sudo pamac clean -v --build-files --keep 0 --no-confirm
+        sudo pamac clean --keep 0 --no-confirm > /dev/null 2>&1
+        sudo pamac clean -v --build-files --keep 0 --no-confirm > /dev/null 2>&1
     else
         echo -e "${RED}!! pamac not found!${NC}"
         echo -e "${ORANGE}==>> Skipping Manjaro cleanup.${NC}"
@@ -91,6 +92,7 @@ debian_cleanup() {
 
         echo -e "${ORANGE}==>> Clearing APT Cache...${NC}"
         sudo apt-get clean
+        sudo rm -rf /var/log/apt/*
 
         echo -e "${ORANGE}==>> Removing Orphan Configurations...${NC}"
         sudo apt-get purge -y $(dpkg -l | awk '/^rc/ { print $2 }')
@@ -159,7 +161,6 @@ perform_housekeeping() {
     find /tmp -type f -not -name "mr_clean.log" -delete 2>/dev/null
     sudo rm -rf /var/tmp/*
     sudo rm -rf ~/.old
-	sudo rm -rf /var/log/apt/*
 
     arch_cleanup
     manjaro_cleanup
