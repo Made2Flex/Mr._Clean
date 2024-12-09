@@ -209,6 +209,7 @@ After=network-online.target
 [Service]
 Type=simple
 Environment=DISPLAY=:0
+Environment=XDG_RUNTIME_DIR=/run/user/$(id -u)
 ExecStart=$TERMINAL -e ${MAINTENANCE_SCRIPT}
 User=$username
 StandardOutput=journal
