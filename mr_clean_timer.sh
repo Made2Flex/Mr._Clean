@@ -195,6 +195,9 @@ srv_creation() {
         exit 1
     fi
 
+     # Get the current username
+    local username=$(whoami)
+
     print_color "yellow" "==>> Creating service with terminal: $(print_color "blue" "$TERMINAL")"
 
     sudo bash -c "cat > /etc/systemd/system/mr-clean.service << EOL
@@ -205,8 +208,12 @@ After=network-online.target
 
 [Service]
 Type=simple
+Environment=DISPLAY=:0
 ExecStart=$TERMINAL -e ${MAINTENANCE_SCRIPT}
-User=ktrl
+User=$username
+StandardOutput=journal
+StandardError=journal
+Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
