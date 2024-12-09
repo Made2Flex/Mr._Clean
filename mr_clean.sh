@@ -93,6 +93,7 @@ debian_cleanup() {
 
         echo -e "${ORANGE}==>> Clearing APT Cache...${NC}"
         sudo apt-get clean
+        sudo rm -rf /var/log/apt/*
 
         echo -e "${ORANGE}==>> Removing Orphan Configurations...${NC}"
         sudo apt-get purge -y $(dpkg -l | awk '/^rc/ { print $2 }')
@@ -161,7 +162,6 @@ perform_housekeeping() {
     find /tmp -type f -not -name "mr_clean.log" -delete 2>/dev/null
     sudo rm -rf /var/tmp/*
     sudo rm -rf ~/.old
-	sudo rm -rf /var/log/apt/*
 
     arch_cleanup
     manjaro_cleanup
