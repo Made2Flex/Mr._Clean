@@ -29,7 +29,7 @@ NC='\033[0m' # No color
 # Function to greet the user
 greet_user() {
     local username=$(whoami)
-    echo -e "${BRIGHT_YELLOW}Hello, $username-sama!${NC}"
+    echo -e "${BRIGHT_YELLOW}Hello, $username-sama${NC}"
 }
 
 # Function to ask y/n and kill orphans
