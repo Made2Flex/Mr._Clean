@@ -14,6 +14,8 @@ ascii_art_header() {
 | $$\  $ | $$| $$          | $$    $$| $$| $$_____/ /$$__  $$| $$  | $$
 | $$ \/  | $$| $$       /$$|  $$$$$$/| $$|  $$$$$$$|  $$$$$$$| $$  | $$ /$$
 |__/     |__/|__/      |__/ \______/ |__/ \_______/ \_______/|__/  |__/|__/
+
+                                                       Qnk6IE1hZGUyRmxleA==
 EOF
 }
 
@@ -58,7 +60,7 @@ arch_cleanup() {
     if command -v pacman &> /dev/null 2>&1; then
         echo -e "${LIGHT_BLUE}==>> Arch Cleanup in progress!!${NC}"
         echo -e "${ORANGE}==>> Cleaning Pacman Cache...${NC}"
-        echo "y" | sudo pacman -Scc
+        yes | sudo pacman -Scc
         echo -e "\n"  # needed for better formatting since the line above
         if command -v yay &> /dev/null 2>&1; then
             echo -e "${ORANGE}==>> Cleaning yay build files...${NC}"
@@ -73,7 +75,7 @@ arch_cleanup() {
     fi
 }
 
-# Function to detect and run manjaro specific cleanup
+# Function to run pamac specific cleanup
 manjaro_cleanup() {
     if command -v pamac &> /dev/null 2>&1; then
         echo -e "${LIGHT_BLUE}==>> Manjaro Specific Cleanup in progress!!${NC}"
@@ -81,7 +83,7 @@ manjaro_cleanup() {
         sudo pamac clean -v --build-files --keep 0 --no-confirm > /dev/null 2>&1
     else
         echo -e "${RED}!! pamac not found!${NC}"
-        echo -e "${ORANGE}==>> Skipping Manjaro cleanup.${NC}"
+        echo -e "${ORANGE}==>> Not using Pamac.${NC}"
     fi
 }
 
@@ -102,7 +104,7 @@ debian_cleanup() {
         echo -e "${GREEN}==>> Debian Cleanup Completed!${NC}"
     else
         echo -e "${RED}!! apt not found!${NC}"
-        echo -e "${ORANGE}==>> Skipping Debian specific cleanup.${NC}"
+        echo -e "${ORANGE}==>> Skipping Debian cleanup.${NC}"
     fi
 }
 
@@ -148,7 +150,7 @@ perform_housekeeping() {
     # Romove logs older than 5 days
     sudo find /var/log -type f -name "*.log" -mtime +5 -delete 2>/dev/null
 
-    echo -e "${ORANGE}==>> Journal Current Size...${NC}"
+    echo -e "${ORANGE}==>> Current Journal Size:${NC}"
     journalctl --disk-usage
     echo -e "${ORANGE}==>> Vaccumming Journal To ~10MBs...${NC}"
     sudo journalctl --vacuum-size=10M

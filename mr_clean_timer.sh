@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# Exit on any error
+set -e
+
+MAINTENANCE_SCRIPT="${HOME}/scripts/mr_clean.sh"
+
 # Function to print colored text
 print_color() {
     local color=$1
@@ -16,7 +21,7 @@ print_color() {
     esac
 }
 
-# Utility function for dynamic color-changing a line
+# Utility function for color-changing a line
 dynamic_color_line() {
     local message="$1"
     #local colors=("red" "yellow" "green" "cyan" "magenta" "blue")
@@ -43,17 +48,11 @@ dynamic_color_line() {
     } >&2
 }
 
-# Exit on any error
-set -e
-
-MAINTENANCE_SCRIPT="${HOME}/scripts/mr_clean.sh"
-
 # Github clone function
 clone_github() {
     local repo_url="$1"
     local target_dir="$2"
 
-    # Direct clone
     if git clone "${repo_url}" "${target_dir}"; then
         print_color "green" "✓ Repository cloned successfully!"
         return 0
@@ -63,7 +62,7 @@ clone_github() {
     fi
 }
 
-# Function to check service and timer files exits
+# Function to check if service and timer files exits
 check_files() {
     # Check if target script exists
     if [ ! -f "${MAINTENANCE_SCRIPT}" ]; then
@@ -195,7 +194,6 @@ srv_creation() {
         exit 1
     fi
 
-     # Get the current username
     local username=$(whoami)
 
     print_color "yellow" "==>> Creating service with terminal: $(print_color "blue" "$TERMINAL")"
@@ -221,7 +219,7 @@ WantedBy=multi-user.target
 EOL"
     print_color "green" "  >> Service file created at: $(print_color "blue" "/etc/systemd/system/mr-clean.service")"
 
-    # Function to create the timer file
+    # create the timer file
     print_color "yellow" "==>> Creating timer..."
     sudo bash -c 'cat > /etc/systemd/system/mr-clean.timer << EOL
 [Unit]
@@ -252,7 +250,7 @@ check_timer() {
     fi
 }
 
-# Function to setup systemd timer service
+# setup systemd timer service
 setup_systemd() {
 
 # Reload systemd configurations
@@ -283,4 +281,4 @@ main() {
 
 # Mr.Clean!!!!
 main
-
+#Qnk6IE1hZGUyRmxleA==
