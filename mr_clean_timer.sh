@@ -226,7 +226,7 @@ EOL"
 Description=Run Mr. Clean Weekly
 
 [Timer]
-OnCalendar=weekly
+OnCalendar=monthly
 Persistent=true
 RandomizedDelaySec=15 seconds
 AccuracySec=1us
