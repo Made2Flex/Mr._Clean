@@ -114,19 +114,19 @@ apt_cleanup() {
 dnf_cleanup() {
     if command -v dnf &> /dev/null 2>&1; then
         echo -e "${LIGHT_BLUE}==>> DNF Cleanup in progress..${NC}"
-        
+
         echo -e "${ORANGE}==>> Cleaning DNF cache...${NC}"
         sudo dnf clean all
-        
+
         echo -e "${ORANGE}==>> Removing old kernels...${NC}"
         sudo dnf autoremove --oldinstallonly --setopt=installonly_limit=2 -y
-        
+
         echo -e "${ORANGE}==>> Removing orphaned packages...${NC}"
         sudo dnf autoremove -y
-        
+
         echo -e "${ORANGE}==>> Cleaning package cache...${NC}"
         sudo dnf clean packages
-        
+
         echo -e "${GREEN}==>> DNF cleanup completed!${NC}"
     fi
 }
@@ -135,19 +135,19 @@ dnf_cleanup() {
 zypper_cleanup() {
     if command -v zypper &> /dev/null 2>&1; then
         echo -e "${LIGHT_BLUE}==>> Zypper Cleanup in progress..${NC}"
-        
+
         echo -e "${ORANGE}==>> Cleaning Zypper cache...${NC}"
         sudo zypper clean
-        
+
         echo -e "${ORANGE}==>> Removing orphaned packages...${NC}"
         sudo zypper packages --orphaned | awk 'NR>2 {print $3}' | xargs -r sudo zypper remove -y
-        
+
         echo -e "${ORANGE}==>> Removing old kernels...${NC}"
         sudo zypper purge-kernels
-        
+
         echo -e "${ORANGE}==>> Cleaning package cache...${NC}"
         sudo zypper clean --all
-        
+
         echo -e "${GREEN}==>> Zypper cleanup completed!${NC}"
     fi
 }
@@ -156,22 +156,22 @@ zypper_cleanup() {
 emerge_cleanup() {
     if command -v emerge &> /dev/null 2>&1; then
         echo -e "${LIGHT_BLUE}==>> Emerge Cleanup in progress..${NC}"
-        
+
         echo -e "${ORANGE}==>> Cleaning Portage cache...${NC}"
         sudo emerge --depclean
-        
+
         echo -e "${ORANGE}==>> Removing unused packages...${NC}"
         sudo emerge --unmerge --ask=n $(emerge --depclean --pretend | grep -E "^WARNING: .* packages are no longer needed" | sed 's/.*packages are no longer needed: //' | tr ' ' '\n' | grep -v "^$")
-        
+
         echo -e "${ORANGE}==>> Cleaning distfiles...${NC}"
         sudo eclean-dist --deep
-        
+
         echo -e "${ORANGE}==>> Cleaning packages...${NC}"
         sudo eclean-pkg --deep
-        
+
         echo -e "${ORANGE}==>> Updating Portage tree...${NC}"
         sudo emerge --sync
-        
+
         echo -e "${GREEN}==>> Emerge cleanup completed!${NC}"
     fi
 }
@@ -211,7 +211,7 @@ perform_housekeeping() {
     rm -rf ~/.cache/thumbnails/*
 
     echo -e "${ORANGE}==>> Deleting Logs older than 5 days...${NC}"
-    
+
     # Remove logs older than 5 days
     sudo find /var/log -type f -name "*.log" -mtime +5 -delete 2>/dev/null
 
@@ -246,7 +246,7 @@ perform_housekeeping() {
 # Function to install libnotify dependency
 install_libnotify() {
     echo -e "${LIGHT_BLUE}==>> Installing libnotify dependency...${NC}"
-    
+
     # Detect package manager and install libnotify
     if command -v pacman &> /dev/null 2>&1; then
         echo -e "${ORANGE}==>> Detected Arch Linux system${NC}"
@@ -270,7 +270,7 @@ install_libnotify() {
         echo -e "${ORANGE}==>> Package name is usually 'libnotify' or 'libnotify-bin'.${NC}"
         exit 1
     fi
-    
+
     # Verify installation
     if command -v notify-send &> /dev/null 2>&1; then
         echo -e "${GREEN}==>> libnotify successfully installed.${NC}"
@@ -293,7 +293,7 @@ check_dependencies() {
 main() {
     # Check dependencies first
     check_dependencies
-    
+
     # Redirect output to log file and console
     {
         notify-send -t 3000 -u normal "Mr. Clean" "System Cleanup Started" --icon=/usr/share/icons/Papirus-Dark/64x64/categories/administration.svg
