@@ -2,17 +2,26 @@
 
 # This is a cleanup script for linux systems
 
+SCRIPT_VERSION="1.0-1"
+AUTHOR="TWFkZTJGbGV4"
 
-# exit on error
-# add || true at the end of commands that are expected to fail
+# Exit on error, trace unset vars
 set -euo pipefail
-
 
 # Get the directory where the script is located
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 
-# ASCII Art Header
-ascii_header() {
+# Color definitions
+GREEN='\033[0;32m'
+ORANGE='\033[1;33m'
+BRIGHT_YELLOW='\033[1;93m'
+RED='\033[0;31m'
+BLUE='\033[1;34m'
+LIGHT_BLUE='\033[1;36m'
+NC='\033[0m' # No color
+
+# Header
+header() {
     cat << 'EOF'
  /$$      /$$                /$$$$$$  /$$                               /$$
 | $$$    /$$$               /$$__  $$| $$                              | $$
@@ -22,64 +31,118 @@ ascii_header() {
 | $$\  $ | $$| $$          | $$    $$| $$| $$_____/ /$$__  $$| $$  | $$
 | $$ \/  | $$| $$       /$$|  $$$$$$/| $$|  $$$$$$$|  $$$$$$$| $$  | $$ /$$
 |__/     |__/|__/      |__/ \______/ |__/ \_______/ \_______/|__/  |__/|__/
-
-                                                       Qnk6IE1hZGUyRmxleA==
 EOF
+}
+
+show_version() {
+    echo -e "${GREEN}Version $SCRIPT_VERSION${NC}"
+}
+
+show_author() {
+    local _timestamped_log
+
+    if [[ -n "$AUTHOR" ]]; then
+        local decoded_author
+        decoded_author=$(echo "$AUTHOR" | base64 --decode 2>/dev/null)
+        if [[ $? -eq 0 ]]; then
+            echo -e "${ORANGE}${decoded_author}${NC}"
+        else
+            echo -e "${RED}[ERROR]${NC} ${ORANGE}Failed to decode AUTHOR (not valid base64?)${NC}"
+        fi
+    else
+        echo -e "${RED}[ERROR]${NC} ${ORANGE}AUTHOR variable is unset.${NC}"
+    fi
+}
+
+help_me() {
+    echo -e "${GREEN}This script runs maintainance for Linux system.${NC}"
+    echo
+    echo -e "${BLUE}Usage:${NC}"
+    echo -e "  bash $0 ${BLUE}[OPTIONS]${NC}"
+    echo
+    echo -e "${BLUE}Options:${NC}"
+    echo "  -h, --help          Show this help message"
+    echo "  -v, --version       Shows the script's version number"
+    echo "  -a, --author        Display author's name"
+    echo
+    echo -e "${ORANGE}Note:${NC} This script requires root privilege for certain operations."
+    echo -e "      It comes as is, with ${RED}NO GUARANTEE!${NC}"
 }
 
 display_header() {
     echo -e "${BRIGHT_YELLOW}"
-    ascii_header
+    header
     echo -e "${NC}"
 }
 
-# Color definitions
-GREEN='\033[0;32m'
-ORANGE='\033[1;33m'
-BRIGHT_YELLOW='\033[1;93m'
-RED='\033[0;31m'
-LIGHT_BLUE='\033[1;36m'
-NC='\033[0m' # No color
-
 # Function to greet the user
 greet_user() {
-    local username=$(whoami)
-    echo -e "${BRIGHT_YELLOW}Hello, $username-sama${NC}"
+    echo -e "${BRIGHT_YELLOW}Hello, $USER ${NC}"
 }
 
 # Function to remove orphans
 rm_orphans() {
-    printf "${BRIGHT_YELLOW}Do You Want To Remove Orphaned Packages? (yes/no): ${NC}"
-    read -rp answer
-    answer=$(echo "$answer" | tr '[:upper:]' '[:lower:]')
+    local orphans_list
+    local answer=""
 
-    case "$answer" in
-        y|yes|"")  # Accept 'y', 'yes', or empty input (Enter key)
-            echo -e "${ORANGE}==>> Removing orphans..${NC}"
-            sudo pacman -Rnsu $(pacman -Qdtq) || true
-            echo -e "${GREEN}==>> Orphaned packages have been removed.${NC}"
-            ;;
-        n|no)      # Accept 'n' or 'no'
-            echo -e "${BRIGHT_YELLOW}==>> Continuing Without Removing Orphaned Packages!${NC}"
-            ;;
-        *)         # Any other input
-            echo -e "${RED}==>> Invalid Input. Please Enter 'yes' or 'no'.${NC}"
-            rm_orphans  # Recursively call the function to retry
-            ;;
-    esac
+    orphans_list="$(pacman -Qdtq 2>/dev/null || true)"
+
+    while true; do
+        printf "%bDo You Want To Remove Orphaned Packages? (yes/no): %b" \
+            "${BRIGHT_YELLOW}" "${NC}"
+
+        read -r answer || answer=""
+        answer="${answer,,}"
+
+        case "${answer}" in
+            y|yes|"")
+                echo -e "${ORANGE}==>> Removing orphans..${NC}"
+                sudo pacman -Rnsu --noconfirm ${orphans_list} || true
+                echo -e "${GREEN}==>> Orphaned packages removed.${NC}"
+                break
+                ;;
+            n|no)
+                echo -e "${BRIGHT_YELLOW}==>> Skipping orphan removal.${NC}"
+                break
+                ;;
+            *)
+                echo -e "${RED}==>> Please answer yes or no.${NC}"
+                ;;
+        esac
+    done
 }
+
 
 # Function to run arch cleanup
 pacman_cleanup() {
-    if command -v pacman &> /dev/null 2>&1; then
-        echo -e "${LIGHT_BLUE}==>> Pacman Cleanup in progress..${NC}"
-        echo -e "${ORANGE}==>> Cleaning Pacman Cache...${NC}"
-        yes | sudo pacman -Scc || true
-        echo -e "\n"  # needed for better formatting since the line above
-        if command -v yay &> /dev/null 2>&1; then
-            echo -e "${ORANGE}==>> Cleaning yay build files...${NC}"
-            yay -Sc --noconfirm || true
-        fi
+    if ! command -v pacman >/dev/null 2>&1; then
+        return
+    fi
+
+    echo -e "${LIGHT_BLUE}==>> Pacman Cleanup in progress..${NC}"
+
+    # Ensure paccache exists
+    if ! command -v paccache >/dev/null 2>&1; then
+        echo -e "${ORANGE}==>> pacman-contrib not installed; skipping cache cleanup.${NC}"
+        return
+    fi
+
+    echo -e "${ORANGE}==>> Cleaning Pacman cache...${NC}"
+
+    sudo paccache -ruk0 || true
+
+    if [[ -d /var/cache/pacman/pkg ]]; then
+        sudo find /var/cache/pacman/pkg \
+            -mindepth 1 \
+            -maxdepth 1 \
+            -type d \
+            -name 'download-*' \
+            -exec rm -rf -- {} + 2>/dev/null || true
+    fi
+
+    if command -v yay >/dev/null 2>&1; then
+        echo -e "${ORANGE}==>> Cleaning yay build cache...${NC}"
+        yay -Yc --noconfirm || true
     fi
 }
 
@@ -87,8 +150,8 @@ pacman_cleanup() {
 pamac_cleanup() {
     if command -v pamac &> /dev/null 2>&1; then
         echo -e "${LIGHT_BLUE}==>> Pamac Cleanup in progress..${NC}"
-        sudo pamac clean -v --keep 0 --no-confirm > /dev/null 2>&1
-        sudo pamac clean -v --build-files --keep 0 --no-confirm > /dev/null 2>&1
+        sudo pamac clean -v --keep 0 --no-confirm > /dev/null 2>&1 || true
+        sudo pamac clean -v --build-files --keep 0 --no-confirm > /dev/null 2>&1 || true
     fi
 }
 
@@ -102,7 +165,11 @@ apt_cleanup() {
         sudo rm -rf /var/log/apt/*
 
         echo -e "${ORANGE}==>> Removing Orphan Configurations...${NC}"
-        sudo apt-get purge -y $(dpkg -l | awk '/^rc/ { print $2 }')
+        local rc_packages
+        rc_packages="$(dpkg -l | awk '/^rc/ { print $2 }')"
+        if [[ -n "${rc_packages}" ]]; then
+            sudo apt-get purge -y ${rc_packages}
+        fi
 
         echo -e "${ORANGE}==>> Removing Unneeded packages...${NC} "
         sudo apt-get autoremove --purge -y
@@ -178,12 +245,17 @@ emerge_cleanup() {
 
 # Function to list orphans if any
 list_orphans() {
+    if [[ ! -t 0 ]]; then
+        echo -e "${BRIGHT_YELLOW}==>> Non-interactive shell detected. Skipping orphan removal.${NC}"
+        return
+    fi
+
     if command -v pacman &> /dev/null 2>&1; then
-        # Suppress output and only show orphans if they exist
-        local orphans=$(pacman -Qdtq 2>/dev/null)
-        if [ -n "$orphans" ]; then
+        local orphans
+        orphans="$(pacman -Qdtq 2>/dev/null || true)"
+        if [[ -n "${orphans}" ]]; then
             echo -e "${ORANGE}==>> Orphaned packages detected:${NC}"
-            echo "$orphans"
+            echo "${orphans}"
             rm_orphans
         else
             echo -e "${GREEN}==>> No Pacman orphaned packages found.${NC}"
@@ -196,7 +268,7 @@ perform_housekeeping() {
     LOG_FILE="$SCRIPT_DIR/mr_clean.log"
 
     echo -e "${ORANGE}==>> Current disk usage...${NC}"
-    df / ~
+    df -h /
     sleep 1
 
     echo -e "${BRIGHT_YELLOW}==>> House-Keeping in progress..${NC}"
@@ -204,7 +276,7 @@ perform_housekeeping() {
     sudo -v
 
     echo -e "${ORANGE}==>> Clearing Cache...${NC}"
-    rm -rf ~/.cache/*
+    [[ -d "${HOME}/.cache" ]] && rm -rf "${HOME}/.cache/"*
     #du -sh ~/.cache/*
 
     echo -e "${ORANGE}==>> Clearing Thumbnail Cache...${NC}"
@@ -240,11 +312,11 @@ perform_housekeeping() {
     echo -e "${ORANGE}==>> Listing orphans, if any...${NC}"
     list_orphans
 
-    echo -e "${GREEN}==>> Housekeeping Complete.${NC}"
+    echo -e "${ORANGE}==>> Housekeeping Complete.${NC}"
 }
 
 # Function to install libnotify dependency
-install_libnotify() {
+install_notify-send() {
     echo -e "${LIGHT_BLUE}==>> Installing libnotify dependency...${NC}"
 
     # Detect package manager and install libnotify
@@ -285,18 +357,47 @@ install_libnotify() {
 check_dependencies() {
     if ! command -v notify-send &> /dev/null 2>&1; then
         echo -e "${BRIGHT_YELLOW}==>> notify-send not found. This script uses it to display visual notifications. Especially helpful when running the script in the background.${NC}"
-        install_libnotify
+        install_notify-send
     fi
+}
+
+arg_parser() {
+    while [ "$#" -gt 0 ]; do
+        case "$1" in
+            -h|--help)
+                help_me
+                exit 0
+                ;;
+            -v|--version)
+                show_version
+                exit 0
+                ;;
+            -a|--author)
+                show_author
+                exit 0
+                ;;
+            -*)
+                echo -e "${RED}Unknown option: $1${NC}"
+                echo -e "Use ${BLUE}--help${NC} for usage information"
+                exit 1
+                ;;
+            *)
+                echo -e "${RED}Unexpected argument: $1${NC}"
+                echo -e "Use ${BLUE}--help${NC} for usage information"
+                exit 1
+                ;;
+        esac
+        shift
+    done
 }
 
 # Main function
 main() {
-    # Check dependencies first
+    arg_parser "$@"
     check_dependencies
 
-    # Redirect output to log file and console
     {
-        notify-send -t 3000 -u normal "Mr. Clean" "System Cleanup Started" --icon=/usr/share/icons/Papirus-Dark/64x64/categories/administration.svg
+        notify-send -t 5000 -u normal "Mr. Clean" "System Cleanup Started" --icon=/usr/share/icons/Papirus-Dark/64x64/categories/administration.svg
         display_header
         greet_user
 
@@ -311,9 +412,9 @@ main() {
         echo "Mr. Clean Completed: $(date "+%Y-%m-%d %H:%M:%S")"
         echo "-------------------------------------------"
 
-        notify-send -t 4000 -u normal "Mr. Clean" "System Cleanup Completed" --icon=/usr/share/icons/Papirus-Dark/64x64/categories/administration.svg
-    } 2>&1 | tee >(sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" >> $SCRIPT_DIR/mr_clean.log)
+        notify-send -t 9000 -u normal "Mr. Clean" "System Cleanup Completed" --icon=/usr/share/icons/Papirus-Dark/64x64/categories/administration.svg
+    } 2>&1 | tee >(sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g" >> "$SCRIPT_DIR/mr_clean.log")
 }
 
 # Clean me!
-main
+main "$@"

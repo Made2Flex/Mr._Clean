@@ -2,7 +2,7 @@
 
 ## 🧹 Overview
 
-Mr._Clean is a comprehensive system cleanup and maintenance script designed for modern Linux systems. It provides an interactive and colorful way to perform system housekeeping tasks, helping you maintain a clean and optimized system.
+Mr._Clean is a comprehensive system cleanup and maintenance script designed for modern Linux systems. It provides an interactive way to perform system housekeeping tasks, helping you maintain a clean and optimized system.
 
 ## ✨ Features
 
@@ -56,10 +56,6 @@ It will clone mr_clean.sh and set-up a systemd timer.
 - Provides disk usage information
 - Sends desktop notifications
 
-## 🎨 Screenshots
-
-[screenshots of the script in action]
-
 ## 🤝 Contributing
 
 1. Fork the repository
@@ -75,4 +71,3 @@ Distributed under the MIT License. see the [LICENSE](LICENSE) file for details.
 ## 🙌 Acknowledgments
 
 - Inspired by the need for simple, effective system maintenance
-- ASCII art header for that extra flex!
