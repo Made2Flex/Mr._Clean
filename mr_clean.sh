@@ -140,10 +140,6 @@ perform_housekeeping() {
 
     echo -e "${ORANGE}==>> Clearing Cache...${NC}"
     rm -rf ~/.cache/*
-    #du -sh ~/.cache/*
-
-    echo -e "${ORANGE}==>> Clearing Thumbnail Cache...${NC}"
-    rm -rf ~/.cache/thumbnails/*
 
     echo -e "${ORANGE}==>> Deleting Logs older than 5 days...${NC}"
     
